@@ -1,0 +1,56 @@
+direction: down
+vars: {
+  d2-config: {
+    theme-id: 8
+    pad: 40
+  }
+}
+
+title: |md
+  # PR #1 - texture pipeline: pack once, load natively
+  17 files and manual slicing replaced by 2 spritesheets PixiJS reads itself.
+| {near: top-center}
+
+build: "BUILD TIME: npm run assets:pack (Node, tools/pack-textures.js)" {
+  style.fill: "#fef3c7"
+  style.stroke: "#92400e"
+  frames: "tools/source/character/*.png\n16 frames, 84x84, ~1 kB each\n(original pack files, kept for reproducibility)" {shape: document; style.fill: "#fde68a"}
+  food_src: "public/assets/food.png\n128x128, 8x8 grid of 16 px\n(original pack sheet, unchanged)" {shape: document; style.fill: "#fde68a"}
+  script: "pack-textures.js\npngjs (pure JS, Node 16)\nPNG.bitblt copies RGBA rectangles" {style.fill: "#fbbf24"}
+  atlas: "public/assets/character.png\n336x336, 4x4 grid\n+ character.json: frames, animations, meta.image" {shape: document; style.fill: "#fde68a"}
+  food_json: "public/assets/food.json\n64 named frames food_0..food_63\nx = i % 8 * 16, y = floor(i / 8) * 16" {shape: document; style.fill: "#fde68a"}
+  frames -> script: "read + decode"
+  food_src -> script: "geometry only,\npixels untouched"
+  script -> atlas: "write"
+  script -> food_json: "write"
+}
+
+runtime: "RUNTIME: browser (src/main.ts -> src/assets/textures.ts)" {
+  style.fill: "#ecfdf5"
+  style.stroke: "#065f46"
+  boot: "main.ts bootstrap()\nBaseTexture.defaultOptions.scaleMode = NEAREST\n(engine config, before any texture)" {shape: oval; style.fill: "#d1fae5"}
+  load: "loadGameTextures()\nPromise.all of 2 Assets.load<Spritesheet>\nfunction, no state" {style.fill: "#6ee7b7"}
+  assets: "PIXI Assets\nfetch JSON -> fetch meta.image\ncache keyed by URL" {shape: cylinder; style.fill: "#d1fae5"}
+  sheet_c: "Spritesheet character\n1 BaseTexture (336x336, ~440 kB RGBA)\n16 Texture objects (frame rectangles)\nanimations: idle 4, runLeft 6, runRight 6" {style.fill: "#a7f3d0"}
+  sheet_f: "Spritesheet food\n1 BaseTexture (128x128, 64 kB RGBA)\n64 Texture objects" {style.fill: "#a7f3d0"}
+  textures: "GameTextures\ncharacter: {idle, runLeft, runRight}\nfood: Texture[64] by index\nmissing frame -> throw with name" {style.fill: "#34d399"}
+  gpu: "GPU memory\n2 WebGL textures, uploaded on first draw\n1 draw call per sheet (batching)" {shape: cylinder; style.fill: "#d1fae5"}
+  overlay: "LoadingScreen (HTML overlay)\nshowError() on any failure\nremove() from DOM on success" {shape: page; style.fill: "#fecaca"}
+  boot -> load
+  load -> assets: "4 requests\n(2 JSON + 2 PNG)"
+  assets -> sheet_c
+  assets -> sheet_f
+  sheet_c -> textures
+  sheet_f -> textures
+  textures -> gpu: "first frame:\ngl.texImage2D"
+  load -> overlay: "reject" {style.stroke-dash: 3; style.stroke: "#b91c1c"}
+  boot -> overlay: "remove()" {style.stroke-dash: 3}
+}
+
+rule: "RULE: prepare data once, offline, with a script in the repo;\nat runtime use what the engine has natively (spritesheet JSON),\nnever re-implement slicing in game code." {
+  shape: page
+  style.fill: "#e0f2fe"
+  style.stroke: "#075985"
+}
+build -> runtime: "committed files in public/assets" {style.stroke-width: 3}
+runtime -> rule

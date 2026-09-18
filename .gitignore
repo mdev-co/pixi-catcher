@@ -1,0 +1,12 @@
+# dependencies and build output
+node_modules/
+dist/
+coverage/
+
+# environment and logs
+.env
+.env.*
+*.log
+
+# OS and tools
+.DS_Store

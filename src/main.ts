@@ -1,41 +1,42 @@
 import './styles.css';
-import { AnimatedSprite, Application, BaseTexture, SCALE_MODES, Sprite } from 'pixi.js';
+import { Application, BaseTexture, SCALE_MODES } from 'pixi.js';
 import { loadGameTextures } from './assets/textures';
-import type { GameTextures } from './assets/textures';
+import { Player } from './entities/Player';
+import { KeyboardInput } from './input/KeyboardInput';
 import { LoadingScreen } from './ui/LoadingScreen';
+import { World } from './world/World';
 
 // Pixel art must be scaled without smoothing. Set before any texture is created.
 BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
 
 const app = new Application({
   resizeTo: window,
+  resolution: window.devicePixelRatio,
+  autoDensity: true,
   background: '#1a1a2e',
 });
 
-const loadingScreen = new LoadingScreen('loading');
+const loadingElement = document.getElementById('loading');
+if (!loadingElement) {
+  throw new Error('Element #loading is missing in index.html');
+}
+const loadingScreen = new LoadingScreen(loadingElement);
 
 async function bootstrap(): Promise<void> {
   const textures = await loadGameTextures();
   document.body.appendChild(app.view as HTMLCanvasElement);
   loadingScreen.remove();
-  showAssetPreview(textures);
-}
 
-function showAssetPreview(textures: GameTextures): void {
-  const player = new AnimatedSprite(textures.character.idle);
-  player.animationSpeed = 0.1;
-  player.anchor.set(0.5, 1);
-  player.scale.set(2);
-  player.position.set(app.screen.width / 2, app.screen.height - 40);
-  player.play();
-  app.stage.addChild(player);
+  const world = new World();
+  app.stage.addChild(world.container);
+  world.fitToScreen(app.screen);
+  app.renderer.on('resize', () => world.fitToScreen(app.screen));
 
-  textures.food.forEach((texture, index) => {
-    const food = new Sprite(texture);
-    food.scale.set(3);
-    food.position.set(40 + (index % 16) * 56, 40 + Math.floor(index / 16) * 56);
-    app.stage.addChild(food);
-  });
+  const keyboard = new KeyboardInput();
+  const player = new Player(textures.character, world);
+  world.container.addChild(player.sprite);
+
+  app.ticker.add(() => player.update(keyboard.direction, app.ticker.deltaMS / 1000));
 }
 
 bootstrap().catch((error: unknown) => {

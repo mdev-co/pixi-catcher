@@ -12,5 +12,6 @@ module.exports = {
     'prettier', // must be last: disables formatting rules that would clash with Prettier
   ],
   env: { browser: true, es2022: true },
-  ignorePatterns: ['dist', 'node_modules', '.eslintrc.cjs'],
+  // tools/ is plain JavaScript until ADR 0001 is revisited; type-aware rules cannot parse it.
+  ignorePatterns: ['dist', 'node_modules', '.eslintrc.cjs', 'tools'],
 };

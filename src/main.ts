@@ -5,6 +5,7 @@ import { Player } from './entities/Player';
 import { KeyboardInput } from './input/KeyboardInput';
 import { LoadingScreen } from './ui/LoadingScreen';
 import { World } from './world/World';
+import { ItemSpawner } from './spawner/ItemSpawner';
 
 // Pixel art must be scaled without smoothing. Set before any texture is created.
 BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
@@ -36,7 +37,13 @@ async function bootstrap(): Promise<void> {
   const player = new Player(textures.character, world);
   world.container.addChild(player.sprite);
 
-  app.ticker.add(() => player.update(keyboard.direction, app.ticker.deltaMS / 1000));
+  const spawner = new ItemSpawner(textures.food, world);
+
+  app.ticker.add(() => {
+    const dt = app.ticker.deltaMS / 1000;
+    player.update(keyboard.direction, dt);
+    spawner.update(dt);
+  });
 }
 
 bootstrap().catch((error: unknown) => {

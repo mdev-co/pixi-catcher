@@ -3,10 +3,10 @@ import type { Spritesheet, Texture } from 'pixi.js';
 
 export type CharacterAnimation = 'idle' | 'runLeft' | 'runRight';
 
-export interface GameTextures {
-  character: Record<CharacterAnimation, Texture[]>;
-  food: Texture[];
-}
+export type GameTextures = {
+  readonly character: Record<CharacterAnimation, Texture[]>;
+  readonly food: Texture[];
+};
 
 const CHARACTER_SHEET_URL = 'assets/character.json';
 const FOOD_SHEET_URL = 'assets/food.json';

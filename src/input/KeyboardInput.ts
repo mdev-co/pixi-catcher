@@ -1,9 +1,13 @@
 export type Direction = -1 | 0 | 1;
 
+export type DirectionSource = {
+  readonly direction: Direction;
+};
+
 const LEFT_CODES = ['ArrowLeft', 'KeyA'];
 const RIGHT_CODES = ['ArrowRight', 'KeyD'];
 
-export class KeyboardInput {
+export class KeyboardInput implements DirectionSource {
   private readonly pressed = new Set<string>();
 
   constructor(private readonly target: Window = window) {

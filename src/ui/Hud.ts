@@ -26,6 +26,7 @@ export class Hud {
   layout(): void {
     const { width, height, scale } = this.world;
     this.container.scale.set(scale);
+    this.container.y = this.world.offsetY;
     this.bar.clear().beginFill(HUD.barColor, HUD.barAlpha).drawRect(0, 0, width, HUD.barHeight);
     this.scoreText.position.set(width / 2 - HUD.gap / 2, HUD.barHeight / 2);
     this.livesText.position.set(width / 2 + HUD.gap / 2, HUD.barHeight / 2);

@@ -14,6 +14,8 @@ export type ItemConfig = {
 };
 
 export const WORLD_HEIGHT = 720;
+export const WORLD_MIN_WIDTH = 480;
+export const WORLD_BACKGROUND = 0x1a1a2e;
 
 export const PLAYER: PlayerConfig = {
   speed: 320,

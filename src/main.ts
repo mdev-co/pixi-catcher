@@ -15,7 +15,7 @@ const app = new Application({
   resizeTo: window,
   resolution: window.devicePixelRatio,
   autoDensity: true,
-  background: '#1a1a2e',
+  background: '#000000',
 });
 
 const loadingElement = document.getElementById('loading');

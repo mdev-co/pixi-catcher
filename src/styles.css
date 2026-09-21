@@ -1,9 +1,14 @@
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('/fonts/PressStart2P-Regular.woff2') format('woff2');
+}
+
 html,
 body {
   margin: 0;
   height: 100%;
   overflow: hidden;
-  background: #1a1a2e;
+  background: #000000;
   font-family: system-ui, sans-serif;
   color: #ffffff;
 }

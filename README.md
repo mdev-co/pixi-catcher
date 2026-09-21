@@ -44,6 +44,7 @@ A husky pre-commit hook runs `npm run check`; CI runs check, tests and build on 
 
 - Character sprites: [4 Directional Character](https://lionheart963.itch.io/4-directional-character) by Warren Clark (free to use, credit appreciated).
 - Food sprites: [Free Pixel Food](https://henrysoftware.itch.io/pixel-food) by Henry Software (CC0).
+- Font: [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) by CodeMan38 (SIL Open Font License 1.1, see `public/fonts/OFL.txt`).
 
 ## License
 

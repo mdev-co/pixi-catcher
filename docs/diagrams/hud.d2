@@ -1,0 +1,51 @@
+direction: down
+vars: {
+  d2-config: {
+    theme-id: 8
+    pad: 40
+  }
+}
+
+title: |md
+  # PR #5 - HUD: follows the world scale, never knows Game
+  Hud draws a bar, score, lives and GAME OVER on top of the world. main.ts feeds it plain values after every game update, so Game holds no reference to Hud.
+| {near: top-center}
+
+stage: "app.stage\nchildren in draw order" {shape: cylinder; style.fill: "#e0f2fe"; style.stroke: "#075985"}
+
+world: "World\nwidth, height = 720, scale\nfitToScreen(screen):\nscale = screen.height / 720\nwidth = screen.width / scale" {style.fill: "#f3f4f6"; style.stroke: "#374151"}
+
+hud: "Hud" {
+  style.fill: "#ecfdf5"
+  style.stroke: "#065f46"
+  layout: "layout()\ncontainer.scale = world.scale\nbar: full world width x barHeight\nscore: anchor (1, 0.5), gap/2 left of centre\nlives: anchor (0, 0.5), gap/2 right of centre\nGAME OVER: anchor (0.5), centre of the screen" {style.fill: "#6ee7b7"}
+  update: "update(score, lives, gameOver)\ntext.text assigned only\nwhen the value changes\ngameOverText.visible = gameOver" {style.fill: "#6ee7b7"}
+  parts: "bar: Graphics\nscoreText, livesText: Text\ngameOverText: Text\nhidden until game over" {style.fill: "#d1fae5"}
+  layout -> parts: "places and scales"
+  update -> parts: "sets text and visibility"
+}
+
+game: "Game\nexposes score, lives, state\ndoes not know Hud" {style.fill: "#f3f4f6"; style.stroke: "#374151"}
+
+ticker: "main.ts, app.ticker (every frame)\n1. game.update(deltaMS / 1000)\n2. hud.update(game.score, game.lives,\nstate === GameOver)" {style.fill: "#e0f2fe"; style.stroke: "#075985"}
+resize: "main.ts, renderer 'resize'\n1. world.fitToScreen(app.screen)\n2. hud.layout()" {style.fill: "#e0f2fe"; style.stroke: "#075985"}
+
+config: "config/game.ts, HUD\nbarHeight 48, gap 64\nstyle: Press Start 2P, 16px" {style.fill: "#fef3c7"; style.stroke: "#92400e"}
+
+preload: "index.html\n<link rel=preload>\nPressStart2P-Regular.woff2" {style.fill: "#f3f4f6"; style.stroke: "#374151"}
+loader: "fonts.ts, loadHudFont()\nawait document.fonts.load(\n'16px Press Start 2P')" {style.fill: "#f3f4f6"; style.stroke: "#374151"}
+
+rule: "Text in PIXI is a bitmap rendered once;\nthe font must be loaded\nbefore the first Text exists,\nand text.text is assigned only on change." {shape: page; style.fill: "#e0f2fe"; style.stroke: "#075985"}
+
+stage -> world: "1. world.container"
+stage -> hud: "2. hud.container, drawn last:\nitems never cover it"
+world -> hud.layout: "width, height, scale"
+config -> hud: "barHeight, gap, style"
+preload -> loader
+loader -> hud: "only then: new Hud(world)"
+ticker -> game
+ticker -> hud.update
+game -> ticker: "score, lives, state" {style.stroke-dash: 3}
+resize -> world
+resize -> hud.layout
+rule -> hud.update

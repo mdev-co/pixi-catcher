@@ -27,9 +27,6 @@ export class ItemSpawner {
         continue;
       }
       item.update(dt);
-      if (item.isBelow(this.world.height)) {
-        this.remove(index);
-      }
     }
   }
 
@@ -50,7 +47,7 @@ export class ItemSpawner {
     this.active.push(item);
   }
 
-  private remove(index: number): void {
+  despawn(index: number): void {
     const item = this.active[index];
     const last = this.active.pop();
     if (!item || !last) {

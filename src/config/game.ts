@@ -29,3 +29,13 @@ export const ITEM: ItemConfig = {
   spawnIntervalSeconds: 1.2,
   spawnMarginTop: 48,
 };
+
+export type RulesConfig = {
+  readonly startingLives: number;
+  readonly pointsPerCatch: number;
+};
+
+export const RULES: RulesConfig = {
+  startingLives: 10,
+  pointsPerCatch: 1,
+};

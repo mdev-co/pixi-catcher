@@ -39,3 +39,31 @@ export const RULES: RulesConfig = {
   startingLives: 10,
   pointsPerCatch: 1,
 };
+
+export type HudConfig = {
+  readonly barHeight: number;
+  readonly barColor: number;
+  readonly barAlpha: number;
+  readonly gap: number;
+  readonly style: {
+    readonly fontFamily: string;
+    readonly fontSize: number;
+    readonly fill: string;
+    readonly stroke: string;
+    readonly strokeThickness: number;
+  };
+};
+
+export const HUD: HudConfig = {
+  barHeight: 48,
+  barColor: 0x000000,
+  barAlpha: 0.5,
+  gap: 64,
+  style: {
+    fontFamily: 'Press Start 2P',
+    fontSize: 16,
+    fill: '#ffffff',
+    stroke: '#000000',
+    strokeThickness: 4,
+  },
+};

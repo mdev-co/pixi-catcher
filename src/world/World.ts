@@ -6,10 +6,11 @@ export class World {
   readonly container = new Container();
   readonly height = WORLD_HEIGHT;
   width = 0;
+  scale = 1;
 
   fitToScreen(screen: Rectangle): void {
-    const scale = screen.height / this.height;
-    this.width = screen.width / scale;
-    this.container.scale.set(scale);
+    this.scale = screen.height / this.height;
+    this.width = screen.width / this.scale;
+    this.container.scale.set(this.scale);
   }
 }

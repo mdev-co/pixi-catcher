@@ -1,5 +1,6 @@
 import { Sprite, Texture } from 'pixi.js';
 import { ITEM } from '../config/game';
+import type { Rect } from '../game/collision';
 
 export class FallingItem {
   readonly sprite: Sprite;
@@ -17,6 +18,16 @@ export class FallingItem {
 
   update(dt: number): void {
     this.sprite.y += ITEM.fallSpeed * dt;
+  }
+
+  get hitbox(): Rect {
+    const { width, height } = this.sprite;
+    return {
+      x: this.sprite.x - width / 2,
+      y: this.sprite.y - height / 2,
+      width,
+      height,
+    };
   }
 
   isBelow(worldHeight: number): boolean {

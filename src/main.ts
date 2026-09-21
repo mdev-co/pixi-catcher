@@ -1,11 +1,10 @@
 import './styles.css';
 import { Application, BaseTexture, SCALE_MODES } from 'pixi.js';
 import { loadGameTextures } from './assets/textures';
-import { Player } from './entities/Player';
+import { Game } from './game/Game';
 import { KeyboardInput } from './input/KeyboardInput';
 import { LoadingScreen } from './ui/LoadingScreen';
 import { World } from './world/World';
-import { ItemSpawner } from './spawner/ItemSpawner';
 
 // Pixel art must be scaled without smoothing. Set before any texture is created.
 BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
@@ -34,16 +33,9 @@ async function bootstrap(): Promise<void> {
   app.renderer.on('resize', () => world.fitToScreen(app.screen));
 
   const keyboard = new KeyboardInput();
-  const player = new Player(textures.character, world);
-  world.container.addChild(player.sprite);
+  const game = new Game(textures, world, keyboard);
 
-  const spawner = new ItemSpawner(textures.food, world);
-
-  app.ticker.add(() => {
-    const dt = app.ticker.deltaMS / 1000;
-    player.update(keyboard.direction, dt);
-    spawner.update(dt);
-  });
+  app.ticker.add(() => game.update(app.ticker.deltaMS / 1000));
 }
 
 bootstrap().catch((error: unknown) => {

@@ -2,6 +2,7 @@ import { AnimatedSprite } from 'pixi.js';
 import type { CharacterAnimation, GameTextures } from '../assets/textures';
 import { PLAYER } from '../config/game';
 import type { Direction } from '../input/KeyboardInput';
+import type { Rect } from '../game/collision';
 import type { World } from '../world/World';
 
 export class Player {
@@ -18,6 +19,7 @@ export class Player {
     this.sprite.animationSpeed = PLAYER.animationSpeed;
     this.sprite.play();
     this.placeOnGround();
+    world.container.addChild(this.sprite);
   }
 
   update(direction: Direction, dt: number): void {
@@ -25,6 +27,17 @@ export class Player {
     const x = this.sprite.x + PLAYER.speed * direction * dt;
     this.sprite.x = Math.min(Math.max(x, halfWidth), this.world.width - halfWidth);
     this.setAnimation(animationFor(direction));
+  }
+
+  get hitbox(): Rect {
+    const width = this.sprite.width - 2 * PLAYER.frameInset * PLAYER.scale;
+    const height = this.sprite.height;
+    return {
+      x: this.sprite.x - width / 2,
+      y: this.sprite.y - height,
+      width,
+      height,
+    };
   }
 
   placeOnGround(): void {

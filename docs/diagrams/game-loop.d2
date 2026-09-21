@@ -1,0 +1,41 @@
+direction: down
+vars: {
+  d2-config: {
+    theme-id: 8
+    pad: 40
+  }
+}
+
+title: |md
+  # PR #4 - game rules: one update per frame, resolved by state
+  Game owns the rules (score, lives, game over). Collision is a pure function of two rectangles.
+| {near: top-center}
+
+ticker: "app.ticker\ngame.update(deltaMS / 1000)" {style.fill: "#e0f2fe"; style.stroke: "#075985"}
+
+game: "Game.update(dt)" {
+  style.fill: "#ecfdf5"
+  style.stroke: "#065f46"
+  state: "switch (state)" {shape: diamond; style.fill: "#d1fae5"}
+  playing: "Playing\nplayer.update(direction, dt)\nspawner.update(dt)\nresolveItems()" {style.fill: "#6ee7b7"}
+  over: "GameOver\nnothing moves" {style.fill: "#fecaca"}
+  state -> playing: "Playing"
+  state -> over: "GameOver"
+}
+
+resolve: "resolveItems(), backwards over spawner.active" {
+  style.fill: "#fef3c7"
+  style.stroke: "#92400e"
+  caught: "intersects(player.hitbox, item.hitbox)\nscore += pointsPerCatch\nspawner.despawn(index)" {style.fill: "#fde68a"}
+  missed: "item.isBelow(world.height)\nlives -= 1, spawner.despawn(index)\nlives == 0: state = GameOver" {style.fill: "#fcd34d"}
+  caught -> missed: "else" {style.stroke-dash: 3}
+}
+
+hitbox: "hitbox getters (Player, FallingItem)\nanchor -> top-left rectangle\nplayer minus transparent frame inset" {shape: page; style.fill: "#e0f2fe"; style.stroke: "#075985"}
+collision: "collision.ts\nintersects(a, b): four strict inequalities\ntouching edges do not collide" {shape: page; style.fill: "#e0f2fe"; style.stroke: "#075985"}
+
+ticker -> game.state
+game.playing -> resolve.caught
+hitbox -> resolve.caught
+collision -> resolve.caught
+resolve.missed -> game.over: "10th miss"

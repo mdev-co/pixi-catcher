@@ -18,3 +18,10 @@ as a follow-up issue.
 
 - One untyped file in `tools/`, outside the game code and outside ESLint.
 - Time goes to the required gameplay first; the conversion is a contained, low-risk change later.
+- The script packs a fixed grid. All frames in one atlas share one size, so a MaxRects packer
+  would produce the same layout. Trimming transparent margins would shrink the character atlas
+  (frames are opaque on 52 of 84 px) and cut fragment work per sprite; at five sprites on screen
+  this is not measurable.
+- A dedicated packer (for example free-tex-packer-cli) can replace the script without touching
+  game code: the PIXI spritesheet loader reads trimmed frames natively (`trimmed`,
+  `spriteSourceSize`, `sourceSize`).

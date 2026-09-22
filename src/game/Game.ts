@@ -1,7 +1,7 @@
 import type { GameTextures } from '../assets/textures';
 import { RULES } from '../config/game';
 import { Player } from '../entities/Player';
-import type { DirectionSource } from '../input/KeyboardInput';
+import type { GameInput } from '../input/KeyboardInput';
 import { ItemSpawner } from '../spawner/ItemSpawner';
 import type { World } from '../world/World';
 import { intersects } from './collision';
@@ -22,7 +22,7 @@ export class Game {
   constructor(
     textures: GameTextures,
     private readonly world: World,
-    private readonly input: DirectionSource,
+    private readonly input: GameInput,
   ) {
     this.player = new Player(textures.character, world);
     this.spawner = new ItemSpawner(textures.food, world);
@@ -36,15 +36,27 @@ export class Game {
         this.resolveItems();
         break;
       case GameState.GameOver:
+        if (this.input.restartPressed) {
+          this.restart();
+        }
+
         break;
     }
+  }
+
+  restart(): void {
+    this.score = 0;
+    this.lives = RULES.startingLives;
+    this.state = GameState.Playing;
+    this.spawner.clear();
+    this.player.placeOnGround();
   }
 
   private resolveItems(): void {
     const playerHitbox = this.player.hitbox;
 
-    for (let index = this.spawner.active.length - 1; index >= 0; index--) {
-      const item = this.spawner.active[index];
+    for (let index = this.spawner.activeItems.length - 1; index >= 0; index--) {
+      const item = this.spawner.activeItems[index];
       if (!item) continue;
 
       if (intersects(playerHitbox, item.hitbox)) {

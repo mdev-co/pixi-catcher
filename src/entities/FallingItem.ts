@@ -16,8 +16,8 @@ export class FallingItem {
     this.sprite.y = -ITEM.spawnMarginTop;
   }
 
-  update(dt: number): void {
-    this.sprite.y += ITEM.fallSpeed * dt;
+  update(dt: number, fallSpeed: number): void {
+    this.sprite.y += fallSpeed * dt;
   }
 
   get hitbox(): Rect {

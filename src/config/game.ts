@@ -8,10 +8,21 @@ export type PlayerConfig = {
 
 export type ItemConfig = {
   readonly scale: number;
-  readonly fallSpeed: number;
-  readonly spawnIntervalSeconds: number;
   readonly spawnMarginTop: number;
 };
+
+export type Level = {
+  readonly fromScore: number;
+  readonly fallSpeed: number;
+  readonly spawnIntervalSeconds: number;
+};
+
+export const LEVELS: readonly Level[] = [
+  { fromScore: 0, fallSpeed: 180, spawnIntervalSeconds: 1.2 },
+  { fromScore: 5, fallSpeed: 240, spawnIntervalSeconds: 1 },
+  { fromScore: 12, fallSpeed: 300, spawnIntervalSeconds: 0.8 },
+  { fromScore: 20, fallSpeed: 380, spawnIntervalSeconds: 0.65 },
+];
 
 export const WORLD_HEIGHT = 720;
 export const WORLD_MIN_WIDTH = 480;
@@ -27,8 +38,6 @@ export const PLAYER: PlayerConfig = {
 
 export const ITEM: ItemConfig = {
   scale: 3,
-  fallSpeed: 180,
-  spawnIntervalSeconds: 1.2,
   spawnMarginTop: 48,
 };
 

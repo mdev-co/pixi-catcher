@@ -1,10 +1,10 @@
-import type { GameTextures } from '../assets/textures';
 import { RULES } from '../config/game';
-import { Player } from '../entities/Player';
+import type { Player } from '../entities/Player';
 import type { GameInput } from '../input/KeyboardInput';
-import { ItemSpawner } from '../spawner/ItemSpawner';
+import type { ItemSpawner } from '../spawner/ItemSpawner';
 import type { World } from '../world/World';
 import { intersects } from './collision';
+import { levelFor } from './levels';
 
 export enum GameState {
   Playing,
@@ -16,17 +16,12 @@ export class Game {
   private currentScore = 0;
   private currentLives = RULES.startingLives;
 
-  private readonly player: Player;
-  private readonly spawner: ItemSpawner;
-
   constructor(
-    textures: GameTextures,
+    private readonly player: Player,
+    private readonly spawner: ItemSpawner,
     private readonly world: World,
     private readonly input: GameInput,
-  ) {
-    this.player = new Player(textures.character, world);
-    this.spawner = new ItemSpawner(textures.food, world);
-  }
+  ) {}
 
   get state(): GameState {
     return this.currentState;
@@ -44,7 +39,7 @@ export class Game {
     switch (this.currentState) {
       case GameState.Playing:
         this.player.update(this.input.direction, dt);
-        this.spawner.update(dt);
+        this.spawner.update(dt, levelFor(this.currentScore));
         this.resolveItems();
         break;
       case GameState.GameOver:

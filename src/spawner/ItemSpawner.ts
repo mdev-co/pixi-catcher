@@ -1,13 +1,14 @@
 import type { Texture } from 'pixi.js';
-import { ITEM } from '../config/game';
+import { type Level } from '../config/game';
 import { FallingItem } from '../entities/FallingItem';
 import type { World } from '../world/World';
 import { Pool } from './Pool';
+import { levelFor } from '../game/levels';
 
 export class ItemSpawner {
   readonly activeItems: FallingItem[] = [];
   private readonly pool = new Pool(() => new FallingItem());
-  private secondsUntilSpawn = ITEM.spawnIntervalSeconds;
+  private secondsUntilSpawn = levelFor(0).spawnIntervalSeconds;
 
   constructor(
     private readonly textures: Texture[],
@@ -18,14 +19,14 @@ export class ItemSpawner {
     while (this.activeItems.length > 0) {
       this.despawn(this.activeItems.length - 1);
     }
-    this.secondsUntilSpawn = ITEM.spawnIntervalSeconds;
+    this.secondsUntilSpawn = levelFor(0).spawnIntervalSeconds;
   }
 
-  update(dt: number): void {
+  update(dt: number, level: Level): void {
     this.secondsUntilSpawn -= dt;
     if (this.secondsUntilSpawn <= 0) {
       this.spawn();
-      this.secondsUntilSpawn += ITEM.spawnIntervalSeconds;
+      this.secondsUntilSpawn += level.spawnIntervalSeconds;
     }
 
     for (let index = this.activeItems.length - 1; index >= 0; index--) {
@@ -33,7 +34,7 @@ export class ItemSpawner {
       if (!item) {
         continue;
       }
-      item.update(dt);
+      item.update(dt, level.fallSpeed);
     }
   }
 

@@ -1,7 +1,7 @@
 import type { GameTextures } from '../assets/textures';
 import { RULES } from '../config/game';
 import { Player } from '../entities/Player';
-import type { DirectionSource } from '../input/KeyboardInput';
+import type { GameInput } from '../input/KeyboardInput';
 import { ItemSpawner } from '../spawner/ItemSpawner';
 import type { World } from '../world/World';
 import { intersects } from './collision';
@@ -12,9 +12,9 @@ export enum GameState {
 }
 
 export class Game {
-  state = GameState.Playing;
-  score = 0;
-  lives = RULES.startingLives;
+  private currentState = GameState.Playing;
+  private currentScore = 0;
+  private currentLives = RULES.startingLives;
 
   private readonly player: Player;
   private readonly spawner: ItemSpawner;
@@ -22,38 +22,62 @@ export class Game {
   constructor(
     textures: GameTextures,
     private readonly world: World,
-    private readonly input: DirectionSource,
+    private readonly input: GameInput,
   ) {
     this.player = new Player(textures.character, world);
     this.spawner = new ItemSpawner(textures.food, world);
   }
 
+  get state(): GameState {
+    return this.currentState;
+  }
+
+  get score(): number {
+    return this.currentScore;
+  }
+
+  get lives(): number {
+    return this.currentLives;
+  }
+
   update(dt: number): void {
-    switch (this.state) {
+    switch (this.currentState) {
       case GameState.Playing:
         this.player.update(this.input.direction, dt);
         this.spawner.update(dt);
         this.resolveItems();
         break;
       case GameState.GameOver:
+        if (this.input.restartPressed) {
+          this.restart();
+        }
+
         break;
     }
+  }
+
+  restart(): void {
+    this.currentScore = 0;
+    this.currentLives = RULES.startingLives;
+    this.currentState = GameState.Playing;
+    this.spawner.clear();
+    this.player.placeOnGround();
   }
 
   private resolveItems(): void {
     const playerHitbox = this.player.hitbox;
 
-    for (let index = this.spawner.active.length - 1; index >= 0; index--) {
-      const item = this.spawner.active[index];
+    for (let index = this.spawner.activeItems.length - 1; index >= 0; index--) {
+      const item = this.spawner.activeItems[index];
       if (!item) continue;
 
       if (intersects(playerHitbox, item.hitbox)) {
-        this.score += RULES.pointsPerCatch;
+        this.currentScore += RULES.pointsPerCatch;
         this.spawner.despawn(index);
       } else if (item.isBelow(this.world.height)) {
-        this.lives -= 1;
+        this.currentLives -= 1;
         this.spawner.despawn(index);
-        if (this.lives <= 0) this.state = GameState.GameOver;
+        if (this.currentLives <= 0) this.currentState = GameState.GameOver;
       }
     }
   }

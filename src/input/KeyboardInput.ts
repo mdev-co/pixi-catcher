@@ -1,14 +1,23 @@
 export type Direction = -1 | 0 | 1;
 
-export type DirectionSource = {
+export type GameInput = {
   readonly direction: Direction;
+  readonly restartPressed: boolean;
 };
 
-const LEFT_CODES = ['ArrowLeft', 'KeyA'];
-const RIGHT_CODES = ['ArrowRight', 'KeyD'];
+type InputAction = 'LEFT' | 'RIGHT' | 'RESTART';
 
-export class KeyboardInput implements DirectionSource {
-  private readonly pressed = new Set<string>();
+const KEY_TO_ACTION: Record<string, InputAction> = {
+  ArrowLeft: 'LEFT',
+  KeyA: 'LEFT',
+  ArrowRight: 'RIGHT',
+  KeyD: 'RIGHT',
+  Space: 'RESTART',
+  Enter: 'RESTART',
+};
+
+export class KeyboardInput implements GameInput {
+  private readonly activeActions = new Set<InputAction>();
 
   constructor(private readonly target: Window = window) {
     target.addEventListener('keydown', this.onKeyDown);
@@ -16,9 +25,14 @@ export class KeyboardInput implements DirectionSource {
     target.addEventListener('blur', this.onBlur);
   }
 
+  get restartPressed(): boolean {
+    return this.activeActions.has('RESTART');
+  }
+
   get direction(): Direction {
-    const left = LEFT_CODES.some((code) => this.pressed.has(code));
-    const right = RIGHT_CODES.some((code) => this.pressed.has(code));
+    const left = this.activeActions.has('LEFT');
+    const right = this.activeActions.has('RIGHT');
+
     if (left === right) {
       return 0;
     }
@@ -29,21 +43,25 @@ export class KeyboardInput implements DirectionSource {
     this.target.removeEventListener('keydown', this.onKeyDown);
     this.target.removeEventListener('keyup', this.onKeyUp);
     this.target.removeEventListener('blur', this.onBlur);
-    this.pressed.clear();
+    this.activeActions.clear();
   }
 
   private readonly onKeyDown = (event: KeyboardEvent): void => {
-    if (LEFT_CODES.includes(event.code) || RIGHT_CODES.includes(event.code)) {
+    const action = KEY_TO_ACTION[event.code];
+    if (action) {
       event.preventDefault();
-      this.pressed.add(event.code);
+      this.activeActions.add(action);
     }
   };
 
   private readonly onKeyUp = (event: KeyboardEvent): void => {
-    this.pressed.delete(event.code);
+    const action = KEY_TO_ACTION[event.code];
+    if (action) {
+      this.activeActions.delete(action);
+    }
   };
 
   private readonly onBlur = (): void => {
-    this.pressed.clear();
+    this.activeActions.clear();
   };
 }

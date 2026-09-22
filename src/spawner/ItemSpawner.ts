@@ -5,7 +5,7 @@ import type { World } from '../world/World';
 import { Pool } from './Pool';
 
 export class ItemSpawner {
-  readonly active: FallingItem[] = [];
+  readonly activeItems: FallingItem[] = [];
   private readonly pool = new Pool(() => new FallingItem());
   private secondsUntilSpawn = ITEM.spawnIntervalSeconds;
 
@@ -14,6 +14,13 @@ export class ItemSpawner {
     private readonly world: World,
   ) {}
 
+  clear(): void {
+    while (this.activeItems.length > 0) {
+      this.despawn(this.activeItems.length - 1);
+    }
+    this.secondsUntilSpawn = ITEM.spawnIntervalSeconds;
+  }
+
   update(dt: number): void {
     this.secondsUntilSpawn -= dt;
     if (this.secondsUntilSpawn <= 0) {
@@ -21,8 +28,8 @@ export class ItemSpawner {
       this.secondsUntilSpawn += ITEM.spawnIntervalSeconds;
     }
 
-    for (let index = this.active.length - 1; index >= 0; index--) {
-      const item = this.active[index];
+    for (let index = this.activeItems.length - 1; index >= 0; index--) {
+      const item = this.activeItems[index];
       if (!item) {
         continue;
       }
@@ -44,17 +51,17 @@ export class ItemSpawner {
     item.sprite.x = minX + Math.random() * (maxX - minX);
 
     this.world.container.addChild(item.sprite);
-    this.active.push(item);
+    this.activeItems.push(item);
   }
 
   despawn(index: number): void {
-    const item = this.active[index];
-    const last = this.active.pop();
+    const item = this.activeItems[index];
+    const last = this.activeItems.pop();
     if (!item || !last) {
       return;
     }
     if (item !== last) {
-      this.active[index] = last;
+      this.activeItems[index] = last;
     }
     this.world.container.removeChild(item.sprite);
     this.pool.release(item);

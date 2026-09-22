@@ -21,7 +21,7 @@ export const PLAYER: PlayerConfig = {
   speed: 320,
   scale: 2,
   animationSpeed: 0.1,
-  groundMargin: 24,
+  groundMargin: 0,
   frameInset: 16,
 };
 

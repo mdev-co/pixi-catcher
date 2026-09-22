@@ -1,0 +1,60 @@
+direction: down
+vars: {
+  d2-config: {
+    theme-id: 8
+    pad: 40
+  }
+}
+
+title: |md
+  # PR #6 - game over and restart: two states, one owner
+  Game owns score, lives and state and exposes them read-only. The bootstrap copies the state into the views every frame; the views never call back into Game.
+| {near: top-center}
+
+input: "KeyboardInput implements GameInput" {
+  style.fill: "#f9fafb"
+  style.stroke: "#374151"
+  map: "KEY_TO_ACTION\nArrowLeft, KeyA -> LEFT\nArrowRight, KeyD -> RIGHT\nSpace, Enter -> RESTART\nvalues typed as InputAction" {style.fill: "#fef3c7"; style.stroke: "#92400e"}
+  set: "activeActions: Set<InputAction>\nkeydown adds, keyup deletes\nblur clears" {style.fill: "#ffffff"}
+  reads: "direction: Direction\nrestartPressed: boolean" {style.fill: "#ffffff"}
+  map -> set: "one lookup per event"
+  set -> reads: "sampled once per frame"
+}
+
+game: "Game: the only writer of score, lives and state" {
+  style.fill: "#ecfdf5"
+  style.stroke: "#065f46"
+  playing: "Playing\nplayer.update, spawner.update\nresolveItems()" {style.fill: "#6ee7b7"}
+  over: "GameOver\nnothing moves\nwaits for restartPressed" {style.fill: "#fecaca"}
+  restart: "restart()\nscore = 0, lives = startingLives\nstate = Playing\nspawner.clear()\nplayer.placeOnGround()" {style.fill: "#a7f3d0"}
+  state: "private currentScore, currentLives, currentState\nread from outside through getters" {shape: page; style.fill: "#d1fae5"}
+  playing -> over: "tenth miss: lives reach 0"
+  over -> restart: "Space or Enter held"
+  restart -> playing: "same start state every time"
+  restart -> state: "resets"
+  playing -> state: "score, lives"
+}
+
+spawner: "ItemSpawner.clear()\ndespawn from the end: no swapping\nsprites leave the world, objects go back to the pool\nsecondsUntilSpawn = spawnIntervalSeconds" {style.fill: "#fef3c7"; style.stroke: "#92400e"}
+
+views: "Views: written to by the bootstrap, never read by Game" {
+  style.fill: "#e0f2fe"
+  style.stroke: "#075985"
+  ticker: "main.ts on app.ticker, every frame\n1. game.update(deltaMS / 1000)\n2. hud.update(score, lives)\n3. state === GameOver ? show(score) : hide()" {shape: oval; style.fill: "#ffffff"}
+  screen: "GameOverScreen\nvisible flag: the DOM is touched\nonly when the state changes\nadds or removes overlay--hidden" {style.fill: "#bae6fd"}
+  html: "index.html #game-over\nh1, final score, Press Space to play again\nstyles.css: overlay--hidden is display none,\nbecause overlay is display flex" {shape: cylinder; style.fill: "#e0f2fe"}
+  ticker -> screen: "show / hide"
+  screen -> html: "class list"
+}
+
+input.reads -> game.playing: "direction"
+input.reads -> game.over: "restartPressed"
+game.restart -> spawner: "clear()"
+game.state -> views.ticker: "getters"
+
+rule: "RULE: the rules own the numbers and the state.\nInput is a typed set of actions, views are written to once per change,\nand a restart returns the game to the same start state every time." {
+  shape: page
+  style.fill: "#e0f2fe"
+  style.stroke: "#075985"
+}
+views -> rule

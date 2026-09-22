@@ -25,22 +25,22 @@ export async function loadGameTextures(): Promise<GameTextures> {
       runRight: animationFrames(characterSheet, 'runRight'),
     },
     food: Array.from({ length: FOOD_FRAME_COUNT }, (_, index) =>
-      frame(foodSheet, `food_${index}`, FOOD_SHEET_URL),
+      frameTexture(foodSheet, `food_${index}`, FOOD_SHEET_URL),
     ),
   };
 }
 
 function animationFrames(sheet: Spritesheet, name: CharacterAnimation): Texture[] {
-  return required(sheet.animations[name], `animation "${name}"`, CHARACTER_SHEET_URL);
+  return requireValue(sheet.animations[name], `animation "${name}"`, CHARACTER_SHEET_URL);
 }
 
-function frame(sheet: Spritesheet, name: string, url: string): Texture {
-  return required(sheet.textures[name], `frame "${name}"`, url);
+function frameTexture(sheet: Spritesheet, name: string, url: string): Texture {
+  return requireValue(sheet.textures[name], `frame "${name}"`, url);
 }
 
-function required<T>(value: T | undefined, what: string, url: string): T {
+function requireValue<T>(value: T | undefined, description: string, url: string): T {
   if (value === undefined) {
-    throw new Error(`Missing ${what} in ${url}`);
+    throw new Error(`Missing ${description} in ${url}`);
   }
   return value;
 }

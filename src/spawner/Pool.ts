@@ -1,13 +1,13 @@
 export class Pool<T> {
-  private readonly free: T[] = [];
+  private readonly available: T[] = [];
 
   constructor(private readonly create: () => T) {}
 
   acquire(): T {
-    return this.free.pop() ?? this.create();
+    return this.available.pop() ?? this.create();
   }
 
   release(item: T): void {
-    this.free.push(item);
+    this.available.push(item);
   }
 }

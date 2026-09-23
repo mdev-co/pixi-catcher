@@ -7,22 +7,22 @@ vars: {
 }
 
 title: |md
-  # PR #5 - HUD: follows the world scale, never knows Game
-  Hud draws a bar with the score and lives on top of the world. main.ts feeds it plain numbers, so Game holds no reference to Hud.
+  # HUD: follows the world scale, never knows Game
+  Hud draws a bar with the score, the level and the lives on top of the world. main.ts feeds it plain numbers, so Game holds no reference to Hud.
 | {near: top-center}
 
 startup: "STARTUP (once): font first, then Hud, then stage order" {
   style.fill: "#f9fafb"
   style.stroke: "#374151"
   preload: "index.html\n<link rel=preload>\nPressStart2P-Regular.woff2" {style.fill: "#ffffff"}
-  config: "config/game.ts, HUD\nbarHeight 48, gap 64\nstyle: Press Start 2P, 16px" {style.fill: "#fef3c7"; style.stroke: "#92400e"}
+  config: "config/game.ts, HUD\nbarHeight 48, margin 24\nstyle: Press Start 2P, 16px" {style.fill: "#fef3c7"; style.stroke: "#92400e"}
   loader: "fonts.ts, loadHudFont()\nawait document.fonts.load(\n'16px Press Start 2P')" {style.fill: "#ffffff"}
   boot: "main.ts, bootstrap()\nawait textures + loadHudFont()\nnew World(), new Hud(world)" {style.fill: "#e0f2fe"; style.stroke: "#075985"}
   stage: "app.stage, children in draw order\n1. world.container\n2. hud.container: drawn last,\nitems never cover it" {shape: cylinder; style.fill: "#e0f2fe"; style.stroke: "#075985"}
   preload -> loader
   config -> loader: "font family, size"
   loader -> boot: "font ready"
-  config -> boot: "style, barHeight, gap"
+  config -> boot: "style, barHeight, margin"
   boot -> stage: "addChild x2"
 }
 
@@ -30,12 +30,12 @@ runtime: "RUNTIME: Hud follows the world and reads plain values, Game never call
   style.fill: "#ecfdf5"
   style.stroke: "#065f46"
   resize: "main.ts on renderer 'resize'\n1. world.fitToScreen(app.screen)\n2. hud.layout()" {shape: oval; style.fill: "#e0f2fe"; style.stroke: "#075985"}
-  ticker: "main.ts on app.ticker, every frame\n1. game.update(deltaMS / 1000)\n2. hud.update(game.score, game.lives)" {shape: oval; style.fill: "#e0f2fe"; style.stroke: "#075985"}
+  ticker: "main.ts on app.ticker, every frame\n1. game.update(deltaMS / 1000)\n2. hud.update(game.score, game.lives, game.level)" {shape: oval; style.fill: "#e0f2fe"; style.stroke: "#075985"}
   fit: "World.fitToScreen(screen)\nscale = screen.height / 720\nwidth = screen.width / scale" {style.fill: "#f3f4f6"; style.stroke: "#374151"}
-  layout: "Hud.layout()\ncontainer.scale = world.scale\ncontainer.y = world.offsetY\nbar: full world width x barHeight\nscore: anchor (1, 0.5), gap/2 left of centre\nlives: anchor (0, 0.5), gap/2 right of centre" {style.fill: "#6ee7b7"}
-  game: "Game.update(dt)\nexposes score and lives as getters\nholds no reference to Hud" {style.fill: "#f3f4f6"; style.stroke: "#374151"}
-  update: "Hud.update(score, lives)\ntext.text assigned only\nwhen the value changes" {style.fill: "#6ee7b7"}
-  parts: "bar: Graphics\nscoreText, livesText: Text" {style.fill: "#d1fae5"}
+  layout: "Hud.layout()\ncontainer.scale = world.scale\ncontainer.y = world.offsetY\nbar: full world width x barHeight\nscore: anchor (0, 0.5) at the left margin\nlevel: anchor (0.5, 0.5) in the middle\nlives: anchor (1, 0.5) at the right margin" {style.fill: "#6ee7b7"}
+  game: "Game.update(dt)\nexposes score, lives and level as getters\nholds no reference to Hud" {style.fill: "#f3f4f6"; style.stroke: "#374151"}
+  update: "Hud.update(score, lives, level)\ntext.text assigned only\nwhen the value changes" {style.fill: "#6ee7b7"}
+  parts: "bar: Graphics\nscoreText, levelText, livesText: Text" {style.fill: "#d1fae5"}
   resize -> fit: "1"
   fit -> layout: "2: scale, width, height"
   ticker -> game: "1"

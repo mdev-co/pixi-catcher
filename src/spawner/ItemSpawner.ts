@@ -1,9 +1,9 @@
 import type { Texture } from 'pixi.js';
-import { type Level } from '../config/game';
+import type { Level } from '../config/game';
 import { FallingItem } from '../entities/FallingItem';
+import { levelFor } from '../game/levels';
 import type { World } from '../world/World';
 import { Pool } from './Pool';
-import { levelFor } from '../game/levels';
 
 export class ItemSpawner {
   readonly activeItems: FallingItem[] = [];
@@ -41,7 +41,7 @@ export class ItemSpawner {
   private spawn(): void {
     const texture = this.textures[Math.floor(Math.random() * this.textures.length)];
     if (!texture) {
-      throw new Error('ItemSpawner: no food textures');
+      throw new Error('No food textures to spawn from');
     }
 
     const item = this.pool.acquire();

@@ -1,8 +1,8 @@
 import { AnimatedSprite } from 'pixi.js';
 import type { CharacterAnimation, GameTextures } from '../assets/textures';
 import { PLAYER } from '../config/game';
-import type { Direction } from '../input/KeyboardInput';
 import type { Rect } from '../game/collision';
+import type { Direction } from '../input/KeyboardInput';
 import type { World } from '../world/World';
 
 export class Player {

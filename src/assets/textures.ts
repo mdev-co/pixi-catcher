@@ -10,7 +10,6 @@ export type GameTextures = {
 
 const CHARACTER_SHEET_URL = 'assets/character.json';
 const FOOD_SHEET_URL = 'assets/food.json';
-const FOOD_FRAME_COUNT = 64;
 
 export async function loadGameTextures(): Promise<GameTextures> {
   const [characterSheet, foodSheet] = await Promise.all([
@@ -18,24 +17,23 @@ export async function loadGameTextures(): Promise<GameTextures> {
     Assets.load<Spritesheet>(FOOD_SHEET_URL),
   ]);
 
+  const food = Object.values(foodSheet.textures);
+  if (food.length === 0) {
+    throw new Error(`No frames in ${FOOD_SHEET_URL}`);
+  }
+
   return {
     character: {
       idle: animationFrames(characterSheet, 'idle'),
       runLeft: animationFrames(characterSheet, 'runLeft'),
       runRight: animationFrames(characterSheet, 'runRight'),
     },
-    food: Array.from({ length: FOOD_FRAME_COUNT }, (_, index) =>
-      frameTexture(foodSheet, `food_${index}`, FOOD_SHEET_URL),
-    ),
+    food,
   };
 }
 
 function animationFrames(sheet: Spritesheet, name: CharacterAnimation): Texture[] {
   return requireValue(sheet.animations[name], `animation "${name}"`, CHARACTER_SHEET_URL);
-}
-
-function frameTexture(sheet: Spritesheet, name: string, url: string): Texture {
-  return requireValue(sheet.textures[name], `frame "${name}"`, url);
 }
 
 function requireValue<T>(value: T | undefined, description: string, url: string): T {

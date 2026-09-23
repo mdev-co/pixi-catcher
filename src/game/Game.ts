@@ -58,7 +58,7 @@ export class Game {
     }
   }
 
-  restart(): void {
+  private restart(): void {
     this.currentScore = 0;
     this.currentLives = RULES.startingLives;
     this.currentState = GameState.Playing;

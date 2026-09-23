@@ -6,6 +6,8 @@ Catch the falling food before it hits the ground. A small arcade game in TypeScr
 
 **[Play it in the browser](https://mdev-co.github.io/pixi-catcher/)** — arrows or A and D to move, Space to start a new game.
 
+**Reviewing this?** The [closed pull requests](https://github.com/mdev-co/pixi-catcher/pulls?q=is%3Apr+is%3Aclosed) carry the reasoning: what changed, why, and how it was tested, with a diagram for each non-trivial step. Short decision records live in [`docs/adr`](docs/adr).
+
 ![The game at level two: a bar with score, level and lives, food falling towards the character](docs/screenshot.png)
 
 ## Requirements

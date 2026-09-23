@@ -7,23 +7,23 @@ vars: {
 }
 
 title: |md
-  # PR #3 - falling item lifecycle: pooled, never destroyed
+  # Falling item lifecycle: pooled, never destroyed
   One FallingItem object per visible sprite, reused forever. Heap snapshots: 4 instances after 30 s and after 60 s.
 | {near: top-center}
 
 spawner: "ItemSpawner.update(dt), every frame" {
   style.fill: "#ecfdf5"
   style.stroke: "#065f46"
-  timer: "secondsUntilSpawn -= dt\nwhen <= 0: spawn(), += spawnIntervalSeconds\n(dt capped at 0.1 s by the ticker, so at most one spawn per frame)" {style.fill: "#d1fae5"}
-  spawn: "spawn()\npool.acquire() -> reset(texture)\nx in [width/2, world.width - width/2]\nworld.container.addChild, active.push" {style.fill: "#6ee7b7"}
-  loop: "for index from active.length - 1 down to 0\nitem.update(dt): y += fallSpeed * dt\nif item.isBelow(world.height): remove(index)" {style.fill: "#a7f3d0"}
-  remove: "remove(index)\nlast = active.pop(); active[index] = last\n(swap and pop, O(1), no shifting)\nworld.container.removeChild, pool.release" {style.fill: "#34d399"}
+  timer: "secondsUntilSpawn -= dt\nwhen <= 0: spawn(), += level.spawnIntervalSeconds\n(dt capped at 0.1 s by the ticker, so at most one spawn per frame)" {style.fill: "#d1fae5"}
+  spawn: "spawn()\npool.acquire() -> reset(texture)\nx in [width/2, world.width - width/2]\nworld.container.addChild, activeItems.push" {style.fill: "#6ee7b7"}
+  loop: "for index from activeItems.length - 1 down to 0\nitem.update(dt, level.fallSpeed): y += fallSpeed * dt" {style.fill: "#a7f3d0"}
+  remove: "despawn(index)\nlast = activeItems.pop(); activeItems[index] = last\n(swap and pop, O(1), no shifting)\nworld.container.removeChild, pool.release" {style.fill: "#34d399"}
   timer -> spawn: "interval elapsed"
   spawn -> loop
-  loop -> remove: "below bottom"
+  loop -> remove: "Game decides: caught or missed"
 }
 
-pool: "Pool<FallingItem>\nfree: FallingItem[]\nacquire = pop() ?? create()\nrelease = push()" {shape: cylinder; style.fill: "#fef3c7"; style.stroke: "#92400e"}
+pool: "Pool<FallingItem>\navailable: FallingItem[]\nacquire = pop() ?? create()\nrelease = push()" {shape: cylinder; style.fill: "#fef3c7"; style.stroke: "#92400e"}
 world: "World.container\nsprites on stage, 1 draw call\n(all food frames share one BaseTexture)" {shape: cylinder; style.fill: "#e0f2fe"; style.stroke: "#075985"}
 
 pool -> spawner.spawn: "acquire"

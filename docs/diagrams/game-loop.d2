@@ -7,7 +7,7 @@ vars: {
 }
 
 title: |md
-  # PR #4 - game rules: one update per frame, resolved by state
+  # Game rules: one update per frame, resolved by state
   Game owns the rules (score, lives, game over). Collision is a pure function of two rectangles.
 | {near: top-center}
 
@@ -17,8 +17,8 @@ game: "Game.update(dt)" {
   style.fill: "#ecfdf5"
   style.stroke: "#065f46"
   state: "switch (state)" {shape: diamond; style.fill: "#d1fae5"}
-  playing: "Playing\nplayer.update(direction, dt)\nspawner.update(dt)\nresolveItems()" {style.fill: "#6ee7b7"}
-  over: "GameOver\nnothing moves" {style.fill: "#fecaca"}
+  playing: "Playing\nlevel = levelFor(score)\nplayer.update(direction, dt, level.playerSpeed)\nspawner.update(dt, level)\nresolveItems()" {style.fill: "#6ee7b7"}
+  over: "GameOver\nnothing moves\nSpace or Enter restarts" {style.fill: "#fecaca"}
   state -> playing: "Playing"
   state -> over: "GameOver"
 }

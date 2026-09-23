@@ -1,4 +1,4 @@
-import { RULES } from '../config/game';
+import { LEVELS, RULES } from '../config/game';
 import type { Player } from '../entities/Player';
 import type { GameInput } from '../input/KeyboardInput';
 import type { ItemSpawner } from '../spawner/ItemSpawner';
@@ -35,13 +35,20 @@ export class Game {
     return this.currentLives;
   }
 
+  get level(): number {
+    return LEVELS.indexOf(levelFor(this.currentScore)) + 1;
+  }
+
   update(dt: number): void {
     switch (this.currentState) {
-      case GameState.Playing:
-        this.player.update(this.input.direction, dt);
-        this.spawner.update(dt, levelFor(this.currentScore));
+      case GameState.Playing: {
+        const level = levelFor(this.currentScore);
+
+        this.player.update(this.input.direction, dt, level.playerSpeed);
+        this.spawner.update(dt, level);
         this.resolveItems();
         break;
+      }
       case GameState.GameOver:
         if (this.input.restartPressed) {
           this.restart();

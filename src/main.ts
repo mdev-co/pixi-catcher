@@ -60,7 +60,7 @@ async function bootstrap(): Promise<void> {
 
   app.ticker.add(() => {
     game.update(app.ticker.deltaMS / 1000);
-    hud.update(game.score, game.lives);
+    hud.update(game.score, game.lives, game.level);
     if (game.state === GameState.GameOver) {
       gameOverScreen.show(game.score);
     } else {

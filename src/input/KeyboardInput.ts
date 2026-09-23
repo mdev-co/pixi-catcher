@@ -17,7 +17,7 @@ const KEY_TO_ACTION: Record<string, InputAction> = {
 };
 
 export class KeyboardInput implements GameInput {
-  private readonly activeActions = new Set<InputAction>();
+  private readonly pressedKeys = new Set<string>();
 
   constructor(private readonly target: Window = window) {
     target.addEventListener('keydown', this.onKeyDown);
@@ -26,12 +26,12 @@ export class KeyboardInput implements GameInput {
   }
 
   get restartPressed(): boolean {
-    return this.activeActions.has('RESTART');
+    return this.isActive('RESTART');
   }
 
   get direction(): Direction {
-    const left = this.activeActions.has('LEFT');
-    const right = this.activeActions.has('RIGHT');
+    const left = this.isActive('LEFT');
+    const right = this.isActive('RIGHT');
 
     if (left === right) {
       return 0;
@@ -43,25 +43,30 @@ export class KeyboardInput implements GameInput {
     this.target.removeEventListener('keydown', this.onKeyDown);
     this.target.removeEventListener('keyup', this.onKeyUp);
     this.target.removeEventListener('blur', this.onBlur);
-    this.activeActions.clear();
+    this.pressedKeys.clear();
+  }
+
+  private isActive(action: InputAction): boolean {
+    for (const code of this.pressedKeys) {
+      if (KEY_TO_ACTION[code] === action) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private readonly onKeyDown = (event: KeyboardEvent): void => {
-    const action = KEY_TO_ACTION[event.code];
-    if (action) {
+    if (KEY_TO_ACTION[event.code]) {
       event.preventDefault();
-      this.activeActions.add(action);
+      this.pressedKeys.add(event.code);
     }
   };
 
   private readonly onKeyUp = (event: KeyboardEvent): void => {
-    const action = KEY_TO_ACTION[event.code];
-    if (action) {
-      this.activeActions.delete(action);
-    }
+    this.pressedKeys.delete(event.code);
   };
 
   private readonly onBlur = (): void => {
-    this.activeActions.clear();
+    this.pressedKeys.clear();
   };
 }

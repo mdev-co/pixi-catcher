@@ -18,7 +18,7 @@
     "typecheck": "tsc --noEmit",
     "lint:fix": "eslint src --ext .ts --fix",
     "format:write": "prettier --write \"src/**/*\" \"tools/*.js\" index.html \"*.{json,md}\" .github .vscode",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "assets:pack": "node tools/pack-textures.js"
   },
   "dependencies": {

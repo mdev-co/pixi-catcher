@@ -22,9 +22,9 @@ export class Player {
     world.container.addChild(this.sprite);
   }
 
-  update(direction: Direction, dt: number): void {
+  update(direction: Direction, dt: number, speed: number): void {
     const halfWidth = this.sprite.width / 2 - PLAYER.frameInset * PLAYER.scale;
-    const x = this.sprite.x + PLAYER.speed * direction * dt;
+    const x = this.sprite.x + speed * direction * dt;
     this.sprite.x = Math.min(Math.max(x, halfWidth), this.world.width - halfWidth);
     this.setAnimation(animationFor(direction));
   }

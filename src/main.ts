@@ -2,8 +2,10 @@ import './styles.css';
 import { Application, BaseTexture, SCALE_MODES } from 'pixi.js';
 import { loadHudFont } from './assets/fonts';
 import { loadGameTextures } from './assets/textures';
+import { Player } from './entities/Player';
 import { Game, GameState } from './game/Game';
 import { KeyboardInput } from './input/KeyboardInput';
+import { ItemSpawner } from './spawner/ItemSpawner';
 import { Hud } from './ui/Hud';
 import { LoadingScreen } from './ui/LoadingScreen';
 import { World } from './world/World';
@@ -52,11 +54,13 @@ async function bootstrap(): Promise<void> {
   });
 
   const keyboard = new KeyboardInput();
-  const game = new Game(textures, world, keyboard);
+  const player = new Player(textures.character, world);
+  const spawner = new ItemSpawner(textures.food, world);
+  const game = new Game(player, spawner, world, keyboard);
 
   app.ticker.add(() => {
     game.update(app.ticker.deltaMS / 1000);
-    hud.update(game.score, game.lives);
+    hud.update(game.score, game.lives, game.level);
     if (game.state === GameState.GameOver) {
       gameOverScreen.show(game.score);
     } else {

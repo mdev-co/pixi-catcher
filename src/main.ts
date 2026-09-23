@@ -6,10 +6,10 @@ import { Player } from './entities/Player';
 import { Game, GameState } from './game/Game';
 import { KeyboardInput } from './input/KeyboardInput';
 import { ItemSpawner } from './spawner/ItemSpawner';
+import { GameOverScreen } from './ui/GameOverScreen';
 import { Hud } from './ui/Hud';
 import { LoadingScreen } from './ui/LoadingScreen';
 import { World } from './world/World';
-import { GameOverScreen } from './ui/GameOverScreen';
 
 // Pixel art must be scaled without smoothing. Set before any texture is created.
 BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
@@ -18,7 +18,8 @@ type ElementId = 'loading' | 'game-over' | 'final-score';
 
 const app = new Application({
   resizeTo: window,
-  resolution: window.devicePixelRatio,
+  // A 3x display would cost nine times the pixels of a 1x one; two is the usual cap for games.
+  resolution: Math.min(window.devicePixelRatio, 2),
   autoDensity: true,
   background: '#000000',
 });
